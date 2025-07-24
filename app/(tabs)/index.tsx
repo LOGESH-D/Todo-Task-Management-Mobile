@@ -6,14 +6,13 @@ import { useState } from 'react';
 import { Image } from 'expo-image';
 import { StyleSheet } from 'react-native';
 
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
 import { Task } from '@/hooks/useTasks';
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Colors } from '@/constants/Colors';
 import { useNavigation } from 'expo-router';
 import { useLayoutEffect } from 'react';
+import { useGoogleAuth } from '@/hooks/useGoogleAuth';
 
 type Priority = 'low' | 'medium' | 'high';
 
@@ -158,9 +157,14 @@ function TaskItem({ task, onComplete, onEdit, onDelete, removingId, setRemovingI
 }
 
 export default function HomeScreen() {
-  const colorSchemeRaw = useColorScheme();
-  const colorScheme: 'light' | 'dark' = colorSchemeRaw === 'dark' ? 'dark' : 'light';
-  const theme = Colors[colorScheme];
+  // All hooks at the top
+  const colorScheme = useColorScheme();
+  const theme = Colors[colorScheme ?? 'light'];
+  const navigation = useNavigation();
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, [navigation]);
+  const { user, signIn, signOut, error: authError } = useGoogleAuth();
   const { tasks, addTask, updateTask, deleteTask, markComplete } = useTasks();
   const [showAdd, setShowAdd] = useState(false);
   const [newTask, setNewTask] = useState<{ title: string; description: string; dueDate: string; priority: Priority }>({ title: '', description: '', dueDate: '', priority: 'medium' });
@@ -170,15 +174,8 @@ export default function HomeScreen() {
   const [filter, setFilter] = useState<'all' | 'open' | 'complete'>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
-  // Add Animated for opacity and backgroundColor
   const [recentlyAddedId, setRecentlyAddedId] = useState<string | null>(null);
-  // Add state for modal animation
   const [modalAnim] = useState(new Animated.Value(0));
-
-  const navigation = useNavigation();
-  useLayoutEffect(() => {
-    navigation.setOptions({ headerShown: false });
-  }, [navigation]);
 
   // Animate modal in/out
   React.useEffect(() => {
@@ -226,7 +223,23 @@ export default function HomeScreen() {
     return matchesSearch && matchesFilter;
   });
 
-  // Always show the main UI, skip user check
+  if (!user) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: theme.background }}>
+        <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 16, color: theme.text }}>Sign in to manage your tasks</Text>
+        <TouchableOpacity
+          onPress={signIn}
+          style={{ backgroundColor: theme.tint, borderRadius: 8, paddingHorizontal: 32, paddingVertical: 14, marginBottom: 12 }}
+          activeOpacity={0.85}
+        >
+          <Ionicons name="logo-google" size={24} color={theme.background} style={{ marginRight: 8 }} />
+          <Text style={{ color: theme.background, fontWeight: 'bold', fontSize: 18 }}>Sign in with Google</Text>
+        </TouchableOpacity>
+        {authError ? <Text style={{ color: 'red', marginTop: 8 }}>{authError}</Text> : null}
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: theme.background }}>
       <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 8, color: theme.text }}>Your Tasks</Text>
@@ -299,7 +312,7 @@ export default function HomeScreen() {
               onDelete={deleteTask}
               removingId={removingId}
               setRemovingId={setRemovingId}
-              colorScheme={colorScheme}
+              colorScheme={colorScheme ?? 'light'}
               theme={theme}
             />
           ))
@@ -442,6 +455,16 @@ export default function HomeScreen() {
           activeOpacity={0.85}
         >
           <Ionicons name="add" size={32} color={theme.background} />
+        </TouchableOpacity>
+      </View>
+      {/* In the main UI (after if (!user) ...), add a Log Out button at the top right: */}
+      <View style={{ position: 'absolute', top: 24, right: 24, zIndex: 100 }}>
+        <TouchableOpacity
+          onPress={signOut}
+          style={{ backgroundColor: theme.tint, borderRadius: 8, paddingHorizontal: 18, paddingVertical: 8 }}
+          activeOpacity={0.85}
+        >
+          <Text style={{ color: theme.background, fontWeight: 'bold', fontSize: 16 }}>Log Out</Text>
         </TouchableOpacity>
       </View>
     </View>
