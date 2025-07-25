@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "TO-DO-LIST",
-    "slug": "TO-DO-LIST",
+    "name": "TO-DO-APP",
+    "slug": "TO-DO-APP",
     "owner": "lokiiii333",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -34,7 +34,9 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ]
+      ],
+      "expo-web-browser",
+      "sentry-expo"
     ],
     "experiments": {
       "typedRoutes": true

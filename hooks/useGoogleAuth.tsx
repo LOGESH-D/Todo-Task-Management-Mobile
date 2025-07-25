@@ -32,8 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [request, response, promptAsync] = Google.useAuthRequest({
     androidClientId: '353785517249-u253i4t706o1847fr36pa8anlttc94ef.apps.googleusercontent.com',
     webClientId: '353785517249-efofrn7kef5ataekjs8cfrs0n40av0lk.apps.googleusercontent.com',
-    expoClientId: '353785517249-efofrn7kef5ataekjs8cfrs0n40av0lk.apps.googleusercontent.com',
-    redirectUri: makeRedirectUri({ useProxy: true }),
+    redirectUri: makeRedirectUri({ useProxy: true }) as string,
   });
 
   useEffect(() => {
