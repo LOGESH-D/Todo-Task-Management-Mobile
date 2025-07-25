@@ -31,8 +31,8 @@ Develop a cross-platform Todo Task Management Mobile App that enables users to l
 ## Setup Instructions
 1. **Clone the repository:**
    ```bash
-   git clone <your-repo-url>
-   cd <your-repo-folder>
+   git clone https://github.com/LOGESH-D/Todo-Task-Management-Mobile.git
+   cd Todo-Task-Management-Mobile
    ```
 2. **Install dependencies:**
    ```bash
